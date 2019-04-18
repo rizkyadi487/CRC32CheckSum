@@ -8,14 +8,16 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
 	var fileBatch []string
-	if len(os.Args) != 2 {
+	if len(os.Args) < 2 {
 		os.Exit(3)
 	}
 
+	//TODO tambah supaya bisa multi input
 	lokasi := os.Args[1]
 
 	err := filepath.Walk(lokasi,
@@ -30,12 +32,20 @@ func main() {
 		})
 	if err != nil {
 		log.Println(err)
+		fmt.Println("Please use double quetes (\") while input path")
+		fmt.Println("ex: \"d:\\test\\test.go\"")
 	}
 
 	for index, value := range fileBatch {
 		hash, err := hashFileCrc32(value, 0xedb88320)
 		if err == nil {
-			fmt.Println("index[", index, "] :", value, " : ", hash)
+			fmt.Println("index[", index, "] :", value, " : ", strings.ToUpper(hash))
+			path := filepath.Dir(value)
+			file := filepath.Base(value)
+			format := filepath.Ext(value)
+			filename := file[0 : len(file)-len(format)]
+			fmt.Println(value, path+"\\"+filename+" ["+hash+"]"+format)
+			//os.Rename(value, path+"\\"+filename+" ["+hash+"]"+format)
 		}
 	}
 }
