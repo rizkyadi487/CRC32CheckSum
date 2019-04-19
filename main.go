@@ -13,7 +13,9 @@ import (
 
 func main() {
 	var fileBatch []string
+	var fileNewName []string
 	if len(os.Args) < 2 {
+		fmt.Println("Need location of file")
 		os.Exit(3)
 	}
 
@@ -36,15 +38,19 @@ func main() {
 		fmt.Println("ex: \"d:\\test\\test.go\"")
 	}
 
-	for index, value := range fileBatch {
+	for _, value := range fileBatch {
 		hash, err := hashFileCrc32(value, 0xedb88320)
 		if err == nil {
-			fmt.Println("index[", index, "] :", value, " : ", strings.ToUpper(hash))
+			//fmt.Print("index[", index, "] : ", value)
 			path := filepath.Dir(value)
 			file := filepath.Base(value)
 			format := filepath.Ext(value)
 			filename := file[0 : len(file)-len(format)]
-			fmt.Println(value, path+"\\"+filename+" ["+hash+"]"+format)
+			newName := path + "\\" + filename + " [" + hash + "]" + format
+			findCrc(value, hash)
+			//fmt.Println(value, path+"\\"+filename+" ["+hash+"]"+format)
+			//fmt.Println(" ->", newName)
+			fileNewName = append(fileNewName, newName)
 			//os.Rename(value, path+"\\"+filename+" ["+hash+"]"+format)
 		}
 	}
@@ -66,4 +72,12 @@ func hashFileCrc32(filePath string, polynomial uint32) (string, error) {
 	returnCRC32String = hex.EncodeToString(hashInBytes)
 	return returnCRC32String, nil
 
+}
+
+func findCrc(filename string, hash string) string {
+	//fmt.Print(strings.Trim("[Hello], Gophers!!!", "[,]"))
+	fmt.Print(strings.TrimRight(strings.TrimLeft(" asd [Hello], Gophers!!!", "]["), "]["))
+	return "File OK"
+	//return "No CRC Found"
+	//return "File Corrupt"
 }
