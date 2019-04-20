@@ -38,27 +38,36 @@ func main() {
 		fmt.Println("ex: \"d:\\test\\test.go\"")
 	}
 
-	for _, value := range fileBatch {
+	askForRename := false
+	for index, value := range fileBatch {
 		hash, err := hashFileCrc32(value, 0xedb88320)
 		if err == nil {
-			//fmt.Print("index[", index, "] : ", value)
 			path := filepath.Dir(value)
 			file := filepath.Base(value)
 			format := filepath.Ext(value)
 			filename := file[0 : len(file)-len(format)]
-			newName := path + "\\" + filename + " [" + hash + "]" + format
+
 			if findCrc(value, hash) == "File OK" {
-				fmt.Println(value, "File OK")
+				newName := ""
+				fmt.Printf("[%d] %s %s\n", index, "[   File OK   ]", value)
+				fileNewName = append(fileNewName, newName)
 			} else if findCrc(value, hash) == "CRC Not Found" {
-				fmt.Println(value, "->", newName)
+				newName := path + "\\" + filename + " [" + hash + "]" + format
+				fmt.Printf("[%d] %s %s -> %s\n", index, "[CRC Not Found]", value, newName)
+				fileNewName = append(fileNewName, newName)
+				askForRename = true
 			} else {
-				fmt.Println(value, "File Corrupt")
+				newName := ""
+				fmt.Printf("[%d] %s %s\n", index, "[File Corrupt ]", value)
+				fileNewName = append(fileNewName, newName)
 			}
-			//fmt.Println(findCrc(value, hash))
-			//fmt.Println(value, path+"\\"+filename+" ["+hash+"]"+format)
-			//fmt.Println(" ->", newName)
-			fileNewName = append(fileNewName, newName)
-			//os.Rename(value, path+"\\"+filename+" ["+hash+"]"+format)
+		}
+	}
+	//TODO buat agar bisa select rename file
+	if askForRename {
+		fmt.Print("Rename all CRC Not Found(y/n) ?")
+		if askForConfirmation() {
+			renamer(fileBatch, fileNewName)
 		}
 	}
 }
@@ -91,5 +100,49 @@ func findCrc(filename string, hash string) string {
 	} else {
 		return "File Corrupt"
 	}
+}
 
+func renamer(origin []string, newName []string) {
+	if len(origin) != len(newName) {
+		fmt.Println("Panjang tidak sama, BUG!!!!")
+		return
+	} else {
+		for index, value := range newName {
+			if value != "" {
+				os.Rename(origin[index], value)
+			}
+		}
+		fmt.Println("All Done")
+	}
+}
+
+func askForConfirmation() bool {
+	var response string
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		log.Fatal(err)
+	}
+	okayResponses := []string{"y", "Y", "yes", "Yes", "YES"}
+	nokayResponses := []string{"n", "N", "no", "No", "NO"}
+	if containsString(okayResponses, response) {
+		return true
+	} else if containsString(nokayResponses, response) {
+		return false
+	} else {
+		fmt.Println("Please type yes or no and then press enter:")
+		return askForConfirmation()
+	}
+}
+
+func containsString(slice []string, element string) bool {
+	return !(posString(slice, element) == -1)
+}
+
+func posString(slice []string, element string) int {
+	for index, elem := range slice {
+		if elem == element {
+			return index
+		}
+	}
+	return -1
 }
