@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
 )
 
 func main() {
@@ -47,7 +47,14 @@ func main() {
 			format := filepath.Ext(value)
 			filename := file[0 : len(file)-len(format)]
 			newName := path + "\\" + filename + " [" + hash + "]" + format
-			findCrc(value, hash)
+			if findCrc(value, hash) == "File OK" {
+				fmt.Println(value, "File OK")
+			} else if findCrc(value, hash) == "CRC Not Found" {
+				fmt.Println(value, "->", newName)
+			} else {
+				fmt.Println(value, "File Corrupt")
+			}
+			//fmt.Println(findCrc(value, hash))
 			//fmt.Println(value, path+"\\"+filename+" ["+hash+"]"+format)
 			//fmt.Println(" ->", newName)
 			fileNewName = append(fileNewName, newName)
@@ -75,9 +82,14 @@ func hashFileCrc32(filePath string, polynomial uint32) (string, error) {
 }
 
 func findCrc(filename string, hash string) string {
-	//fmt.Print(strings.Trim("[Hello], Gophers!!!", "[,]"))
-	fmt.Print(strings.TrimRight(strings.TrimLeft(" asd [Hello], Gophers!!!", "]["), "]["))
-	return "File OK"
-	//return "No CRC Found"
-	//return "File Corrupt"
+	var validID = regexp.MustCompile(`\[([[:xdigit:]]{8})\]`)
+	crc := string(validID.Find([]byte(filename)))
+	if crc == "["+hash+"]" {
+		return "File OK"
+	} else if crc == "" {
+		return "CRC Not Found"
+	} else {
+		return "File Corrupt"
+	}
+
 }
