@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 func main() {
@@ -19,28 +20,35 @@ func main() {
 		os.Exit(3)
 	}
 
-	//TODO tambah supaya bisa multi input
-	lokasi := os.Args[1]
+	for index, value := range os.Args {
 
-	err := filepath.Walk(lokasi,
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if filepath.Ext(path) != "" {
-				fileBatch = append(fileBatch, path)
-			}
-			return nil
-		})
-	if err != nil {
-		log.Println(err)
-		fmt.Println("Please use double quetes (\") while input path")
-		fmt.Println("ex: \"d:\\test\\test.go\"")
+		if index == 0 {
+			continue
+		}
+
+		lokasi := value
+
+		err := filepath.Walk(lokasi,
+			func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if filepath.Ext(path) != "" {
+					fileBatch = append(fileBatch, path)
+				}
+				return nil
+			})
+		if err != nil {
+			log.Println(err)
+			fmt.Println("Please use double quetes (\") while input path")
+			fmt.Println("ex: \"d:\\test\\test.go\"")
+		}
 	}
 
 	askForRename := false
 	for index, value := range fileBatch {
 		hash, err := hashFileCrc32(value, 0xedb88320)
+		hash = strings.ToUpper(hash)
 		if err == nil {
 			path := filepath.Dir(value)
 			file := filepath.Base(value)
@@ -58,17 +66,21 @@ func main() {
 				askForRename = true
 			} else {
 				newName := ""
-				fmt.Printf("[%d] %s %s\n", index, "[File Corrupt ]", value)
+				fmt.Printf("[%d] %s %s %s\n", index, "[File Corrupt ]", value, hash)
 				fileNewName = append(fileNewName, newName)
 			}
 		}
 	}
 	//TODO buat agar bisa select rename file
+	//TODO buat supaya bisa di sort by category
 	if askForRename {
 		fmt.Print("Rename all CRC Not Found(y/n) ?")
 		if askForConfirmation() {
 			renamer(fileBatch, fileNewName)
+			pressAnyKey()
 		}
+	} else {
+		pressAnyKey()
 	}
 }
 
@@ -145,4 +157,11 @@ func posString(slice []string, element string) int {
 		}
 	}
 	return -1
+}
+
+func pressAnyKey() {
+	var pressAnyKey string
+	fmt.Println("Press Any Key to Continue")
+	n, _ := fmt.Scanln(&pressAnyKey)
+	_ = n
 }

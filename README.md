@@ -1,6 +1,6 @@
 # About
 
-Conversion of unit library for golang
+CRC32 Checksum using golang
 
 ## Installation
 
@@ -24,7 +24,7 @@ go build github.com/rizkyadi487/CRC32CheckSum
 
 ## Future work
 
-Make this program can check several folders and files and can choose index from the file to be renamed
+Make this program can choose index from the file to be renamed and show list of file sort by Category
 
 ## License
 
