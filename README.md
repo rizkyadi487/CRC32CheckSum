@@ -24,7 +24,7 @@ go build github.com/rizkyadi487/CRC32CheckSum
 
 ## Future work
 
-Make this program can choose index from the file to be renamed and show list of file sort by Category
+Make this program can choose index from the file to be renamed and show list of file sort by Category also make dynamic rename format
 
 ## License
 

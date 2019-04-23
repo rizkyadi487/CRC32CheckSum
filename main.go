@@ -86,6 +86,7 @@ func main() {
 
 func hashFileCrc32(filePath string, polynomial uint32) (string, error) {
 	var returnCRC32String string
+	fmt.Println("Now Checking :", filePath, "...")
 	file, err := os.Open(filePath)
 	if err != nil {
 		return returnCRC32String, err
@@ -105,6 +106,7 @@ func hashFileCrc32(filePath string, polynomial uint32) (string, error) {
 func findCrc(filename string, hash string) string {
 	var validID = regexp.MustCompile(`\[([[:xdigit:]]{8})\]`)
 	crc := string(validID.Find([]byte(filename)))
+	crc = strings.ToUpper(crc)
 	if crc == "["+hash+"]" {
 		return "File OK"
 	} else if crc == "" {
