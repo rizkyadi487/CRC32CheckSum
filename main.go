@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/hex"
 	"fmt"
 	"hash/crc32"
@@ -16,8 +17,7 @@ func main() {
 	var fileBatch []string
 	var fileNewName []string
 	if len(os.Args) < 2 {
-		fmt.Println("Need location of file")
-		os.Exit(3)
+		os.Args = append(os.Args, interfaces())
 	}
 
 	for index, value := range os.Args {
@@ -166,4 +166,20 @@ func pressAnyKey() {
 	fmt.Println("Press Any Key to Continue")
 	n, _ := fmt.Scanln(&pressAnyKey)
 	_ = n
+}
+
+func interfaces() string {
+
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Println(
+		`===============================
+           RunMe v1.1
+================================`)
+	fmt.Print("Enter paths : ")
+	patssshs, _ := reader.ReadString('\n')
+	//paths = strings.TrimSuffix(paths, "\n")
+	patssshs = patssshs[0:(len(patssshs) - 2)]
+
+	return patssshs
 }
